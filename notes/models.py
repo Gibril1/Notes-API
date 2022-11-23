@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 class Notes(models.Model):
@@ -11,6 +12,7 @@ class Notes(models.Model):
     category = models.CharField(max_length=1, choices=CATEGORY_CHOICES)
     title = models.CharField(max_length=20)
     content = models.TextField()
+    student = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     
 
 
