@@ -28,6 +28,21 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES':[
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
+    ]
+}
+
+from datetime import timedelta
+SIMPLE_JWT = {
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=15),
+    'ROTATE_REFRESH_TOKENS': True
+}
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -38,7 +53,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'notes',
-    'rest_framework'
+    'rest_framework',
+    'django_filters'
 ]
 
 MIDDLEWARE = [

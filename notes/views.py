@@ -13,6 +13,7 @@ class NotesView(APIView):
         serializer = NotesSerializer(notes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
     def post(self, request):
         serializer = NotesSerializer(data=request.data)
 
