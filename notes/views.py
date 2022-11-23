@@ -5,9 +5,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Notes
 from .serializers import NotesSerializer
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 class NotesView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         notes = Notes.objects.all()
         serializer = NotesSerializer(notes, many=True)
@@ -24,12 +26,14 @@ class NotesView(APIView):
     
 
 class GroupNotesView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, category):
         notes = Notes.objects.filter(category=category)
         serializer = NotesSerializer(notes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class NotesDetailsView(APIView):
+    permission_classes = [IsAuthenticated]
     def get_note_by_id(self, id):
         try:
             return Notes.objects.get(id=id)
