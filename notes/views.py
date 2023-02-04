@@ -1,76 +1,43 @@
-from django.shortcuts import render
-from django.http import Http404
 from rest_framework import status
+from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Notes
 from .serializers import NotesSerializer
-from rest_framework.permissions import IsAuthenticated
 
-# Create your views here.
-class NotesView(APIView):
+class UserEditDeletePermission(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+        return obj.student == request.user
+
+
+class NotesView(ListAPIView):
     permission_classes = [IsAuthenticated]
-    def get(self, request):
-        notes = Notes.objects.all()
-        serializer = NotesSerializer(notes, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    queryset = Notes.objects.all()
+    serializer_class = NotesSerializer
+
+class NotesDetailsView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [UserEditDeletePermission]
+    queryset = Notes.objects.all()
+    serializer_class = NotesSerializer
 
 
+class CreateNoteView(APIView):
     def post(self, request):
-        
         serializer = NotesSerializer(data=request.data)
-        
-
-
         if serializer.is_valid():
-            serializer.save(student=request.user)
-
+            serializer.save(student = request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
 
 class GroupNotesView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, category):
-        notes = Notes.objects.filter(category=category)
+        notes = Notes.objects.filter(category=category).filter(student=request.user).all()
         serializer = NotesSerializer(notes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class UsersNotesView(APIView):
-    permission_classes = [IsAuthenticated]
-    def get(self, request):
-        notes = Notes.objects.filter(student=request.user)
-        serializer = NotesSerializer(notes, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-class NotesDetailsView(APIView):
-    permission_classes = [IsAuthenticated]
-    def get_note_by_id(self, id):
-        try:
-            return Notes.objects.get(id=id)
-        except Notes.DoesNotExist:
-            raise Http404
-
-    def get(self, request, id, format=None):
-        note = self.get_note_by_id(id)
-        print(note)
-        serializer = NotesSerializer(note)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    def put(self, request, id, format=None):
-        note = self.get_note_by_id(id)
-        serializer = NotesSerializer(note, data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.error, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, id, format=None):
-        note = self.get_note_by_id(id)
-        note.delete()
-        return Response(note.id, status=status.HTTP_204_NO_CONTENT)
 
 
 

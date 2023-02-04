@@ -3,12 +3,14 @@ from .views import (
     NotesView, 
     GroupNotesView, 
     NotesDetailsView, 
-    UsersNotesView)
+    CreateNoteView
+)
 
 urlpatterns = [
     path('', NotesView.as_view()),
+    path('create/', CreateNoteView.as_view()),
     path('<str:category>/', GroupNotesView.as_view()),
-    path('<int:id>/', NotesDetailsView.as_view()),
-    path('user/', UsersNotesView.as_view())
+    path('<int:pk>/', NotesDetailsView.as_view()),
+    
 ]
 
